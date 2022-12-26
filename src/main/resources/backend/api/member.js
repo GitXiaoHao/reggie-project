@@ -1,7 +1,7 @@
 function getMemberList (params) {
   return $axios({
     url: '/employee/page',
-    method: 'get',
+    method: 'get',//使用了request拦截器拦截get请求
     params
   })
 }

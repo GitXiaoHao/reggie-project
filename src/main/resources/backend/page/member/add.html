@@ -131,16 +131,21 @@
           }
         },
         created() {
+          //获取请求路径上的id
           this.id = requestUrlParam('id')
+          //判断当前的类型是修改还是添加
           this.actionType = this.id ? 'edit' : 'add'
           if (this.id) {
+            //如果有id值 就是修改
             this.init()
           }
         },
         mounted() {
         },
         methods: {
+          //修改时 初始化
           async init () {
+            //调用查询方法
             queryEmployeeById(this.id).then(res => {
               console.log(res)
               if (String(res.code) === '1') {
@@ -190,7 +195,7 @@
                   const params = {
                     ...this.ruleForm,
                     sex: this.ruleForm.sex === '女' ? '0' : '1'
-                  }
+                  }//修改员工信息
                   editEmployee(params).then(res => {
                     if (res.code === 1) {
                       this.$message.success('员工信息修改成功！')

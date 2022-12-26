@@ -115,17 +115,24 @@
         el: '#member-app',
         data() {
           return {
+            //用户查询条件
              input: '',
+            // 一共多少条
              counts: 0,
+            //当前多少页
              page: 1,
+            //每一页显示多少条
              pageSize: 2,
+            //显示的数据
              tableData : [],
              id : '',
              status : '',
           }
         },
         computed: {},
+        // 生命周期函数
         created() {
+          // 调用自己的函数
           this.init()
             if(localStorage.getItem('userInfo') != null){
                 //获取当前登录员工的账号，并赋值给模型数据user
@@ -135,12 +142,17 @@
         mounted() {
         },
         methods: {
+          //页面加载完成后调用
           async init () {
             const params = {
+              //当前多少页
               page: this.page,
+              //每一页显示多少条
               pageSize: this.pageSize,
+              //用户输入的查询姓名
               name: this.input ? this.input : undefined
             }
+            //发送分页请求
             await getMemberList(params).then(res => {
               if (String(res.code) === '1') {
                 this.tableData = res.data.records || []
@@ -150,6 +162,7 @@
               this.$message.error('请求出错了：' + err)
             })
           },
+          //查询员工姓名的模糊查询
           handleQuery() {
             this.page = 1;
             this.init();
@@ -172,17 +185,22 @@
           },
           //状态修改
           statusHandle (row) {
+            //修改的用户id
             this.id = row.id
+            //修改用户的状态
             this.status = row.status
+            //提示
             this.$confirm('确认调整该账号的状态?', '提示', {
               'confirmButtonText': '确定',
               'cancelButtonText': '取消',
               'type': 'warning'
               }).then(() => {
+                //调用函数
               enableOrDisableEmployee({ 'id': this.id, 'status': !this.status ? 1 : 0 }).then(res => {
                 console.log('enableOrDisableEmployee',res)
                 if (String(res.code) === '1') {
                   this.$message.success('账号状态更改成功！')
+                  //重新进行查询
                   this.handleQuery()
                 }
               }).catch(err => {
@@ -190,10 +208,12 @@
               })
             })
           },
+          //每页显示几条数据
           handleSizeChange (val) {
             this.pageSize = val
             this.init()
           },
+          //前往第几页
           handleCurrentChange (val) {
             this.page = val
             this.init()

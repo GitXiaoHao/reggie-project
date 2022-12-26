@@ -18,6 +18,8 @@ public class Information {
      */
     public static final String USER_INFO = "userInfo";
     public static final String INITIAL_PASSWORD = "123456";
-    /**sql唯一约束*/
+    /**
+     * sql唯一约束
+     * */
     public static final String INTEGRITY_CONSTRAINT = "Duplicate entry";
 }

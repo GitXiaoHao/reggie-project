@@ -1,6 +1,7 @@
 package com.yh.reggie.controller.filter;
 
 import com.alibaba.fastjson.JSON;
+import com.yh.reggie.common.BaseContext;
 import com.yh.reggie.common.Information;
 import com.yh.reggie.common.Result;
 
@@ -50,9 +51,11 @@ public class LoginCheckFilter implements Filter {
             //需要处理
             log.info("拦截到请求:{}", uri);
             //获取登录对象
-            if(request.getSession().getAttribute(Information.USER_INFO) == null){
+            Object employee = request.getSession().getAttribute(Information.USER_INFO);
+            if(employee == null){
                 //如果登陆对象等于空
                 response.getWriter().write(JSON.toJSONString(Result.error(Information.NOT_LOGIN)));
+                return;
             }
         }
         //放行
