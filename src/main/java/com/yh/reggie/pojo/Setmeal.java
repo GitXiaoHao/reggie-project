@@ -1,93 +1,84 @@
 package com.yh.reggie.pojo;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotBlank;
-
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Date;
+
 import lombok.Data;
 
 /**
- * 员工信息
+ * 套餐
+ *
  * @author yu
- * @TableName employee
+ * @TableName setmeal
  */
-@TableName(value ="employee")
+@TableName(value = "setmeal")
 @Data
-public class Employee implements Serializable {
+public class Setmeal implements Serializable {
+    @TableField(exist = false)
+    private static final long serialVersionUID = 1L;
     /**
      * 主键
      */
     @TableId
     private Long id;
-
     /**
-     * 姓名
+     * 菜品分类id
+     */
+    private Long categoryId;
+    /**
+     * 套餐名称
      */
     private String name;
-    @NotBlank(message = "请输入名称")
     /**
-     * 用户名
+     * 套餐价格
      */
-    private String username;
-    @Length(message = "密码不能少于 {min} 个字符", min = 6)
-    @NotBlank(message = "请输入密码")
+    private BigDecimal price;
     /**
-     * 密码
-     */
-    private String password;
-
-    /**
-     * 手机号
-     */
-    private String phone;
-
-    /**
-     * 性别
-     */
-    private String sex;
-
-    /**
-     * 身份证号
-     */
-    private String idNumber;
-
-    /**
-     * 状态 0:禁用，1:正常
+     * 状态 0:停用 1:启用
      */
     private Integer status;
-
+    /**
+     * 编码
+     */
+    private String code;
+    /**
+     * 描述信息
+     */
+    private String description;
+    /**
+     * 图片
+     */
+    private String image;
     /**
      * 创建时间
      */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
-
     /**
      * 更新时间
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
-
     /**
      * 创建人
      */
     @TableField(fill = FieldFill.INSERT)
     private Long createUser;
-
     /**
      * 修改人
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long updateUser;
-
-    @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
+    /**
+     * 是否删除
+     */
+    @TableLogic
+    private Integer isDeleted;
 }

@@ -321,11 +321,15 @@
           }
         },
         created() {
+          //获取菜品分类列表
           this.getDishList()
           // 口味临时数据
           this.getFlavorListHand()
+          // 获取url地址上面的参数 判断是否携带数据 没有携带是添加 携带了得是修改
           this.id = requestUrlParam('id')
+          //没有id是添加add
           this.actionType = this.id ? 'edit' : 'add'
+          //如果是添加
           if (this.id) {
             this.init()
           }
@@ -389,8 +393,10 @@
 
           // 获取菜品分类
           getDishList () {
+            //传输type 1为菜品
             getCategoryList({ 'type': 1 }).then(res => {
               if (res.code === 1) {
+                //菜品分类
                 this.dishList = res.data
               } else {
                 this.$message.error(res.msg || '操作失败')
@@ -442,29 +448,37 @@
             arrDate[key] = JSON.parse(JSON.stringify(this.dishFlavorsData[ind]))
             this.dishFlavors = arrDate
           },
-
+          //提交按钮
           submitForm(formName, st) {
             this.$refs[formName].validate((valid) => {
               if (valid) {
                 let params = {...this.ruleForm}
                 // params.flavors = this.dishFlavors
+                //状态 如果当前有数据就是1 起售
                 params.status = this.ruleForm ? 1 : 0
+                //以分的形式存储
                 params.price *= 100
                 params.categoryId = this.ruleForm.categoryId
+                //口味
                 params.flavors = this.dishFlavors.map(obj => ({ ...obj, value: JSON.stringify(obj.value) }))
                 delete params.dishFlavors
                 if(!this.imageUrl){
                   this.$message.error('请上传菜品图片')
                   return 
                 }
+                //如果当前是添加菜品
                 if (this.actionType == 'add') {
+                  // 删除id
                   delete params.id
+                  //添加菜品
                   addDish(params).then(res => {
                     if (res.code === 1) {
                       this.$message.success('菜品添加成功！')
                       if (!st) {
+                        //如果不是点保存并继续添加
                         this.goBack()
                       } else {
+                        //清空数据
                         this.dishFlavors = []
                         // this.dishFlavorsData = []
                         this.imageUrl = ''
@@ -486,8 +500,10 @@
                   }).catch(err => {
                     this.$message.error('请求出错了：' + err)
                   })
-                } else {
+                } else {//如果是修改
+                  //删除修改时间
                   delete params.updateTime
+                  //修改
                   editDish(params).then(res => {
                     if (res.code === 1) {
                       this.$message.success('菜品修改成功！')

@@ -5,23 +5,18 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotBlank;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
 import lombok.Data;
 
 /**
- * 员工信息
- * @author yu
- * @TableName employee
+ * 菜品及套餐分类
+ * @TableName category
  */
-@TableName(value ="employee")
+@TableName(value ="category")
 @Data
-public class Employee implements Serializable {
+public class Category implements Serializable {
     /**
      * 主键
      */
@@ -29,40 +24,19 @@ public class Employee implements Serializable {
     private Long id;
 
     /**
-     * 姓名
+     * 类型   1 菜品分类 2 套餐分类
+     */
+    private Integer type;
+
+    /**
+     * 分类名称
      */
     private String name;
-    @NotBlank(message = "请输入名称")
-    /**
-     * 用户名
-     */
-    private String username;
-    @Length(message = "密码不能少于 {min} 个字符", min = 6)
-    @NotBlank(message = "请输入密码")
-    /**
-     * 密码
-     */
-    private String password;
 
     /**
-     * 手机号
+     * 顺序
      */
-    private String phone;
-
-    /**
-     * 性别
-     */
-    private String sex;
-
-    /**
-     * 身份证号
-     */
-    private String idNumber;
-
-    /**
-     * 状态 0:禁用，1:正常
-     */
-    private Integer status;
+    private Integer sort;
 
     /**
      * 创建时间

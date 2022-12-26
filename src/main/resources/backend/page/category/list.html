@@ -52,7 +52,7 @@
           prop="updateTime"
           label="操作时间"
         >
-        <template slot-scope="scope">
+        <template slot-scope="scope" style="text-align: center">
          {{scope.row.updateTime}}
         </template>
         </el-table-column>
@@ -175,9 +175,12 @@
         },
         methods: {
           async init () {
+            //发送分页查询请求 当前第几页 当前页显示多少数据
             await getCategoryPage({'page': this.page, 'pageSize': this.pageSize}).then(res => {
               if (String(res.code) === '1') {
+                //当前数据
                 this.tableData = res.data.records
+                //一共有多少数据
                 this.counts = Number(res.data.total)
               } else {
                 this.$message.error(res.msg || '操作失败')
@@ -186,13 +189,14 @@
               this.$message.error('请求出错了：' + err)
             })
           },
+          //发送分页查询请求
           handleQuery() {
             this.page = 1;
             this.init();
           },
            // 添加
           addClass(st) {
-            if (st == 'class') {
+            if (st === 'class') {
               this.classData.title = '新增菜品分类'
               this.type = '1'
             } else {
@@ -204,6 +208,7 @@
             this.classData.sort = ''
             this.classData.dialogVisible = true
           },
+          //修改分类 将当前行的数据传过来
           editHandle(dat) {
             this.classData.title = '修改分类'
             this.action = 'edit'
@@ -237,11 +242,16 @@
           },
           //数据提交
           submitForm(st) {
+            //将当前的数据保存
               const classData = this.classData
+            //判断是否输入了数据
               const valid = (classData.name === 0 ||classData.name)  && (classData.sort === 0 || classData.sort)
+            //如果本次是添加
               if (this.action === 'add') {
+                //如果都输入了数据
                 if (valid) {
                   const reg = /^\d+$/
+                  //判断排序是否输的是数字
                   if (reg.test(classData.sort)) {
                     addCategory({'name': classData.name,'type':this.type, sort: classData.sort}).then(res => {
                       console.log(res)
@@ -253,6 +263,7 @@
                           this.classData.name = ''
                           this.classData.sort = ''
                         }
+                        //重新发送分页模糊查询请求
                         this.handleQuery()
                       } else {
                         this.$message.error(res.msg || '操作失败')
@@ -267,13 +278,15 @@
               } else {
                   this.$message.error('请输入分类名称或排序')
               }
-            } else if (valid) {
+            } else if (valid) {//如果本次是修改
               const reg = /^\d+$/
               if (reg.test(this.classData.sort)) {
+                //发送修改请求
                 editCategory({'id':this.classData.id,'name': this.classData.name, sort: this.classData.sort}).then(res => {
                   if (res.code === 1) {
                     this.$message.success('分类修改成功！')
                     this.classData.dialogVisible = false
+                    //重新查询
                     this.handleQuery()
                   } else {
                     this.$message.error(res.msg || '操作失败')

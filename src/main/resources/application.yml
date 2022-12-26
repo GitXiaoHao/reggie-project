@@ -18,3 +18,5 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: ASSIGN_ID #主键生成策略
+reggie:
+  path: E:\HaoCode\SSM\reggie\reggie-project\src\main\resources\backend\images\food\

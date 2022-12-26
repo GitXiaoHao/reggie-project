@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.io.IOException;
 import java.sql.SQLIntegrityConstraintViolationException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -37,5 +38,22 @@ public class GlobalExceptionHandler {
             return Result.error(msg);
         }
         return Result.error("未知错误");
+    }
+    /**处理自己的异常*/
+    @ExceptionHandler(CustomException.class)
+    public Result<String> customHandler(CustomException exception){
+        log.error(exception.getMessage());
+        return Result.error(exception.getMessage());
+    }
+    /**处理io异常*/
+    @ExceptionHandler(IOException.class)
+    public Result<String> ioHandler(IOException exception){
+        log.error(exception.getMessage());
+        return Result.error("文件传输错误");
+    }
+    @ExceptionHandler(IllegalStateException.class)
+    public Result<String> illegalStateHandler(IllegalStateException exception){
+        log.error(exception.getMessage());
+        return Result.error("非法状态");
     }
 }
