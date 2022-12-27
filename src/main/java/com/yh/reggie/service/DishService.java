@@ -19,4 +19,19 @@ public interface DishService extends IService<Dish> {
      */
     @Transactional(rollbackFor = Exception.class)
     boolean saveWithFlavor(DishDto dishDto);
+
+    /**
+     * 根据id查询菜品信息和口味信息
+     * @param id id
+     * @return dto
+     */
+    DishDto getByIdWithFlavor(Long id);
+
+    /**
+     * 修改菜品信息 更新对应的口味信息
+     * @param dishDto
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    boolean updateWithFlavor(DishDto dishDto);
 }

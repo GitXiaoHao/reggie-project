@@ -3,6 +3,8 @@ package com.yh.reggie.service;
 import com.yh.reggie.pojo.Category;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
 * @author yu
 * @description 针对表【category(菜品及套餐分类)】的数据库操作Service
@@ -16,4 +18,11 @@ public interface CategoryService extends IService<Category> {
      * @return 删除成功返回true
      */
     boolean remove(Long id);
+
+    /**
+     * 根据分类id查询分类名称
+     * @param id
+     * @return
+     */
+    List<String> getNameById(Long id);
 }

@@ -14,6 +14,10 @@ import com.yh.reggie.service.SetmealService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 /**
  * @author yu
  * @description 针对表【category(菜品及套餐分类)】的数据库操作Service实现
@@ -26,7 +30,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     private DishService dishService;
     @Autowired
     private SetmealService setmealService;
-
+    @Autowired
+    private CategoryMapper categoryMapper;
     @Override
     public boolean remove(Long id) {
         Category category = this.getById(id);
@@ -49,6 +54,13 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
         }
         //正常删除
         return this.removeById(id);
+    }
+
+    @Override
+    public List<String> getNameById(Long categoryId) {
+        Optional<Long> optional = Optional.ofNullable(categoryId);
+        List<Category> categoryList = categoryMapper.selectNameById(optional.orElse(0L));
+        return categoryList.stream().map(Category::getName).collect(Collectors.toList());
     }
 }
 

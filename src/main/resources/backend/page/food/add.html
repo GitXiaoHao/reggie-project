@@ -329,7 +329,7 @@
           this.id = requestUrlParam('id')
           //没有id是添加add
           this.actionType = this.id ? 'edit' : 'add'
-          //如果是添加
+          //如果是修改
           if (this.id) {
             this.init()
           }
@@ -338,6 +338,7 @@
         },
         methods: {
           async init () {
+            //回显当前数据
             queryDishById(this.id).then(res => {
               console.log(res)
               if (String(res.code) === '1') {

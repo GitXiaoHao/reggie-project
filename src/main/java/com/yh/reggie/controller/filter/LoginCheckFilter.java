@@ -56,6 +56,10 @@ public class LoginCheckFilter implements Filter {
                 //如果登陆对象等于空
                 response.getWriter().write(JSON.toJSONString(Result.error(Information.NOT_LOGIN)));
                 return;
+            }else{
+                if(BaseContext.getCurrent() == null) {
+                    BaseContext.setCurrent(employee);
+                }
             }
         }
         //放行

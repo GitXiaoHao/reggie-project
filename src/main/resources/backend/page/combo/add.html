@@ -461,6 +461,7 @@
           async init() {
             querySetmealById(this.id).then((res) => {
               if (String(res.code) === '1') {
+                alert(res.data)
                 this.ruleForm = res.data
                 this.ruleForm.status = res.data.status === '1'
                 this.ruleForm.price = res.data.price / 100

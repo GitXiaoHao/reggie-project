@@ -13,13 +13,13 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 /**
- * 套餐
+ * 套餐菜品关系
  *
- * @TableName setmeal
+ * @TableName setmeal_dish
  */
-@TableName(value = "setmeal")
+@TableName(value = "setmeal_dish")
 @Data
-public class Setmeal implements Serializable {
+public class SetmealDish implements Serializable {
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
     /**
@@ -28,33 +28,29 @@ public class Setmeal implements Serializable {
     @TableId
     private Long id;
     /**
-     * 菜品分类id
+     * 套餐id
      */
-    private Long categoryId;
+    private String setmealId;
     /**
-     * 套餐名称
+     * 菜品id
+     */
+    private String dishId;
+    /**
+     * 菜品名称 （冗余字段）
      */
     private String name;
     /**
-     * 套餐价格
+     * 菜品原价（冗余字段）
      */
     private BigDecimal price;
     /**
-     * 状态 0:停用 1:启用
+     * 份数
      */
-    private Integer status;
+    private Integer copies;
     /**
-     * 编码
+     * 排序
      */
-    private String code;
-    /**
-     * 描述信息
-     */
-    private String description;
-    /**
-     * 图片
-     */
-    private String image;
+    private Integer sort;
     /**
      * 创建时间
      */

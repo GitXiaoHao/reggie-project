@@ -8,7 +8,6 @@ package com.yh.reggie.common;
  */
 public class BaseContext {
     private static final ThreadLocal<Object> THREAD_LOCAL = new ThreadLocal<>();
-
     private BaseContext() {
     }
 

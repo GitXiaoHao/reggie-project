@@ -5,13 +5,8 @@ import com.yh.reggie.pojo.Employee;
 
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
-
-import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 

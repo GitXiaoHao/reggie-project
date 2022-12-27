@@ -78,7 +78,6 @@ public class EmployeeController {
         }
         //登陆成功，将员工id存入session并返回登陆成功结果
         request.getSession().setAttribute(userInfo, employeeServiceOne);
-        BaseContext.setCurrent(employeeServiceOne);
         return Result.success(employeeServiceOne);
     }
 

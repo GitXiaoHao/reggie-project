@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 /**
 * @author yu
 * @description 针对表【setmeal(套餐)】的数据库操作Mapper
-* @createDate 2022-12-27 13:53:33
+* @createDate 2022-12-28 12:50:07
 * @Entity com.yh.reggie.pojo.Setmeal
 */
 @Mapper
