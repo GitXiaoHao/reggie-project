@@ -4,12 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yh.reggie.controller.exception.CustomException;
 import com.yh.reggie.mapper.CategoryMapper;
+import com.yh.reggie.mapper.DishMapper;
+import com.yh.reggie.mapper.SetmealMapper;
 import com.yh.reggie.pojo.Category;
 import com.yh.reggie.pojo.Dish;
 import com.yh.reggie.pojo.Setmeal;
 import com.yh.reggie.service.CategoryService;
-import com.yh.reggie.service.DishService;
-import com.yh.reggie.service.SetmealService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,11 +27,11 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
         implements CategoryService {
     @Autowired
-    private DishService dishService;
-    @Autowired
-    private SetmealService setmealService;
+    private SetmealMapper setmealMapper;
     @Autowired
     private CategoryMapper categoryMapper;
+    @Autowired
+    private DishMapper dishMapper;
     @Override
     public boolean remove(Long id) {
         Category category = this.getById(id);
@@ -41,12 +41,12 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
             LambdaQueryWrapper<Dish> dishLambdaQueryWrapper = new LambdaQueryWrapper<>();
             //查看菜品
             dishLambdaQueryWrapper.eq(Dish::getCategoryId, id);
-            count = dishService.count(dishLambdaQueryWrapper);
+            count = dishMapper.selectCount(dishLambdaQueryWrapper);
         }else{
             //套餐
             LambdaQueryWrapper<Setmeal> setmealLambdaQueryWrapper = new LambdaQueryWrapper<>();
             setmealLambdaQueryWrapper.eq(Setmeal::getCategoryId, id);
-            count = setmealService.count(setmealLambdaQueryWrapper);
+            count = setmealMapper.selectCount(setmealLambdaQueryWrapper);
         }
         if (count > 0) {
             //已经关联 抛出业务异常
@@ -57,10 +57,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     }
 
     @Override
-    public List<String> getNameById(Long categoryId) {
+    public String getNameById(Long categoryId) {
         Optional<Long> optional = Optional.ofNullable(categoryId);
         List<Category> categoryList = categoryMapper.selectNameById(optional.orElse(0L));
-        return categoryList.stream().map(Category::getName).collect(Collectors.toList());
+        return categoryList.stream().map(Category::getName).collect(Collectors.toList()).get(0);
     }
 }
 

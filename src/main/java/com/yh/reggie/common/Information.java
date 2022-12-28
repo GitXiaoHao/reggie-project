@@ -17,6 +17,7 @@ public class Information {
      * 登陆时存储在session中的名称
      */
     public static final String USER_INFO = "userInfo";
+    public static final String USER = "user";
     public static final String INITIAL_PASSWORD = "123456";
     /**
      * sql唯一约束

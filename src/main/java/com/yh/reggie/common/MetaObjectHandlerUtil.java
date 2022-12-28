@@ -19,25 +19,41 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class MetaObjectHandlerUtil implements MetaObjectHandler {
+    private final String createUser = "createUser";
+    private final String updateUser = "updateUser";
     @Override
     public void insertFill(MetaObject metaObject) {
         log.info("[insert]");
         log.info(metaObject.toString());
-        Employee employee = (Employee) BaseContext.getCurrent();
-        log.info(employee.toString());
-        metaObject.setValue("createTime", LocalDateTime.now());
-        metaObject.setValue("updateTime", LocalDateTime.now());
-        metaObject.setValue("createUser", employee.getId());
-        metaObject.setValue("updateUser", employee.getId());
+        Long id = (Long) BaseContext.getCurrent();
+        log.info(id.toString());
+        String createTime = "createTime";
+        if(metaObject.hasGetter(createTime)) {
+            metaObject.setValue(createTime, LocalDateTime.now());
+        }
+        String updateTime = "updateTime";
+        if (metaObject.hasGetter(updateTime)) {
+            metaObject.setValue(updateTime, LocalDateTime.now());
+        }
+        if (metaObject.hasGetter(createUser)) {
+            metaObject.setValue(createUser, id);
+        }
+        if (metaObject.hasGetter(updateUser)) {
+            metaObject.setValue(updateUser, id);
+        }
     }
 
     @Override
     public void updateFill(MetaObject metaObject) {
         log.info("[update]");
         log.info(metaObject.toString());
-        Employee employee = (Employee) BaseContext.getCurrent();
-        log.info(employee.toString());
-        metaObject.setValue("updateTime", LocalDateTime.now());
-        metaObject.setValue("updateUser", employee.getId());
+        Long id = (Long) BaseContext.getCurrent();
+        log.info(id.toString());
+        if (metaObject.hasGetter(createUser)) {
+            metaObject.setValue(createUser, id);
+        }
+        if (metaObject.hasGetter(updateUser)) {
+            metaObject.setValue(updateUser, id);
+        }
     }
 }

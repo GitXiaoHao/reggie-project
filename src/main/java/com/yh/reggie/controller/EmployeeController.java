@@ -77,7 +77,7 @@ public class EmployeeController {
             return Result.error("账号已禁用");
         }
         //登陆成功，将员工id存入session并返回登陆成功结果
-        request.getSession().setAttribute(userInfo, employeeServiceOne);
+        request.getSession().setAttribute(userInfo, employeeServiceOne.getId());
         return Result.success(employeeServiceOne);
     }
 

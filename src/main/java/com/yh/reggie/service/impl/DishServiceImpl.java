@@ -7,6 +7,7 @@ import com.yh.reggie.mapper.DishMapper;
 import com.yh.reggie.pojo.Dish;
 import com.yh.reggie.pojo.DishFlavor;
 import com.yh.reggie.pojo.dto.DishDto;
+import com.yh.reggie.service.CategoryService;
 import com.yh.reggie.service.DishFlavorService;
 import com.yh.reggie.service.DishService;
 
@@ -28,7 +29,8 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish>
         implements DishService {
     @Autowired
     private DishFlavorService dishFlavorService;
-
+    @Autowired
+    private CategoryService categoryService;
     @Override
     public boolean saveWithFlavor(DishDto dishDto) {
         //保存菜品的基本信息
@@ -49,7 +51,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish>
     }
 
     @Override
-    public DishDto getByIdWithFlavor(Long id) {
+    public DishDto getByIdWithFlavorAndCategoryName(Long id) {
         //查询菜品基本信息
         Dish dish = this.getById(Optional.ofNullable(id).orElse(0L));
         //查询当前菜品对应的口味信息
@@ -61,6 +63,8 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish>
         DishDto dishDto = new DishDto();
         BeanUtils.copyProperties(dish, dishDto);
         dishDto.setFlavors(dishFlavorList);
+        //再将分类添加
+        dishDto.setCategoryName(categoryService.getNameById(dishDto.getCategoryId()));
         return dishDto;
     }
 

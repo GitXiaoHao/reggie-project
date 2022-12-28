@@ -43,24 +43,37 @@ public class LoginCheckFilter implements Filter {
                 "/employee/logout",
                 "/backend/**",
                 "/front/**",
-
-
+                "/common/**",
+                //移动端发送短信
+                "/user/sendMsg",
+                // 移动端登陆
+                "/user/login"
         };
         //判断本次请求是否需要处理
         if (!check(uris, uri)) {
             //需要处理
             log.info("拦截到请求:{}", uri);
+
             //获取登录对象
             Object employee = request.getSession().getAttribute(Information.USER_INFO);
-            if(employee == null){
-                //如果登陆对象等于空
-                response.getWriter().write(JSON.toJSONString(Result.error(Information.NOT_LOGIN)));
-                return;
-            }else{
-                if(BaseContext.getCurrent() == null) {
+            if(employee != null){
+                if (BaseContext.getCurrent() == null) {
                     BaseContext.setCurrent(employee);
                 }
+                filterChain.doFilter(request, response);
+                return;
             }
+            //4-2判断移动端登录状态，如果已登录，则直接放行
+            if (request.getSession().getAttribute(Information.USER) != null) {
+                //把用户id存储到本地的threadLocal
+                Long userId = (Long) request.getSession().getAttribute(Information.USER);
+                BaseContext.setCurrent(userId);
+                filterChain.doFilter(request, response);
+            }else{
+                //如果登陆对象等于空
+                response.getWriter().write(JSON.toJSONString(Result.error(Information.NOT_LOGIN)));
+            }
+            return;
         }
         //放行
         filterChain.doFilter(request, response);

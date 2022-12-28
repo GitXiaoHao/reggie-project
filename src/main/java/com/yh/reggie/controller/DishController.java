@@ -5,12 +5,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yh.reggie.common.Result;
 import com.yh.reggie.pojo.Dish;
 import com.yh.reggie.pojo.dto.DishDto;
-import com.yh.reggie.service.CategoryService;
 import com.yh.reggie.service.DishService;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -43,12 +43,11 @@ import lombok.extern.slf4j.Slf4j;
 public class DishController {
     @Autowired
     private DishService dishService;
-    @Autowired
-    private CategoryService categoryService;
 
     /**
      * 新增
      */
+    @CacheEvict(value = "dish", allEntries = true)
     @PostMapping
     public Result<String> save(@Validated @RequestBody DishDto dishDto, BindingResult result) {
         //判断口味是否有值
@@ -63,6 +62,7 @@ public class DishController {
     /**
      * 分页查询
      */
+    @Cacheable(value = "dish", key = "#page + '_' + #pageSize")
     @GetMapping("/page")
     public Result<Page<DishDto>> page(int page, int pageSize, String name) {
         //构造分页构造器
@@ -83,16 +83,7 @@ public class DishController {
                 = dishPage.getRecords()
                           .stream()
                           .map(dish -> {
-                              DishDto dto = new DishDto();
-                              //对象拷贝
-                              BeanUtils.copyProperties(dish, dto);
-                              //根据分类id查询分类
-                              List<String> nameList = categoryService.getNameById(dish.getCategoryId());
-                              if(nameList != null) {
-                                  //赋值给dto对象
-                                  dto.setCategoryName(nameList.get(0));
-                              }
-                              return dto;
+                              return dishService.getByIdWithFlavorAndCategoryName(dish.getId());
                           })
                           .collect(Collectors.toList());
         //获得菜品集合
@@ -102,15 +93,18 @@ public class DishController {
 
     /**
      * 根据id查询数据 菜品信息和口味信息
+     *
      * @param id 传输的id
      * @return dto
      */
+    @Cacheable(value = "dish" , key = "#id")
     @GetMapping("/{id}")
-    public Result<DishDto> getById(@PathVariable("id") Long id){
-        DishDto dishDto = dishService.getByIdWithFlavor(Optional.ofNullable(id).orElse(0L));
+    public Result<DishDto> getById(@PathVariable("id") Long id) {
+        DishDto dishDto = dishService.getByIdWithFlavorAndCategoryName(Optional.ofNullable(id).orElse(0L));
         return Result.success(dishDto);
     }
 
+    @CacheEvict(value = "dish", key = "#dishDto.categoryId")
     @PutMapping
     public Result<String> update(@Validated @RequestBody DishDto dishDto, BindingResult result) {
         //判断口味是否有值
@@ -124,11 +118,13 @@ public class DishController {
 
     /**
      * 批量的停售和起售
+     *
      * @return
      */
+    @CacheEvict(value = "dish" , allEntries = true)
     @PostMapping("/status/{status}")
-    public Result<String> status(@PathVariable("status") Integer status,@RequestParam Long[] ids){
-            //创建dish集合
+    public Result<String> status(@PathVariable("status") Integer status, @RequestParam Long[] ids) {
+        //创建dish集合
         List<Dish> dishList = new ArrayList<>();
         for (Long id : ids) {
             Dish dish = dishService.getById(id);
@@ -144,28 +140,41 @@ public class DishController {
      *
      * @return
      */
+    @CacheEvict(value = "dish", allEntries = true)
     @DeleteMapping
     public Result<String> delete(@RequestParam List<Long> ids) {
         //创建集合
         boolean remove = dishService.removeByIds(ids);
         return remove ? Result.success("删除成功") : Result.error("删除失败");
     }
+
     /**
      * 根据条件查询数据
      */
+    @Cacheable(value = "dish" , key = "#dish.categoryId")
     @GetMapping("/list")
-    public Result<List<Dish>> list(Dish dish){
+    public Result<List<DishDto>> list(Dish dish) {
+        List<DishDto> dishList = null;
+        //从redis中获取缓存数据 如果存在直接返回
+        String key = "dish_" + dish.getCategoryId() + "_" + dish.getStatus();
         LambdaQueryWrapper<Dish> wrapper = new LambdaQueryWrapper<>();
         //如果传过来的有id
-        wrapper.eq(dish.getCategoryId() != null, Dish::getCategoryId,dish.getCategoryId())
+        wrapper.eq(dish.getCategoryId() != null, Dish::getCategoryId, dish.getCategoryId())
                 //如果进行查询
-                .eq(dish.getName() != null,Dish::getName,dish.getName())
+                .eq(dish.getName() != null, Dish::getName, dish.getName())
                 //只要起售菜品
-                .eq(Dish::getStatus,1)
+                .eq(Dish::getStatus, 1)
                 //排序
                 .orderByAsc(Dish::getSort)
                 .orderByAsc(Dish::getUpdateTime);
-        List<Dish> dishList = dishService.list(wrapper);
+        //查询菜品对应的口味
+        dishList = dishService.list(wrapper)
+                           .stream()
+                           .map(item -> {
+                               //根据id查询口味
+                               return dishService.getByIdWithFlavorAndCategoryName(item.getId());
+                           })
+                           .collect(Collectors.toList());
         return Result.success(dishList);
     }
 }

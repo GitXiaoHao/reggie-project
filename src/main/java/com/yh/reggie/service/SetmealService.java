@@ -39,9 +39,9 @@ public interface SetmealService extends IService<Setmeal> {
     boolean updateWithDish(SetmealDto setmealDto);
 
     /**
-     * 根据id查询套餐 并且查询菜品
+     * 根据id查询套餐 并且查询菜品 分类名称
      * @param id
      * @return
      */
-    SetmealDto getByIdWithDish(Long id);
+    SetmealDto getByIdWithDishAndCategoryName(Long id);
 }

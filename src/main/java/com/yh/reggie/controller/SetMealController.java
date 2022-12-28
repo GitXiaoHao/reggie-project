@@ -5,11 +5,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yh.reggie.common.Result;
 import com.yh.reggie.pojo.Setmeal;
 import com.yh.reggie.pojo.dto.SetmealDto;
-import com.yh.reggie.service.CategoryService;
 import com.yh.reggie.service.SetmealService;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,12 +43,11 @@ import lombok.extern.slf4j.Slf4j;
 public class SetMealController {
     @Autowired
     private SetmealService setmealService;
-    @Autowired
-    private CategoryService categoryService;
 
     /**
      * 新增套餐
      */
+    @CacheEvict(value = "setmeal", allEntries = true)
     @PostMapping
     public Result<String> save(@Valid @RequestBody SetmealDto setmealDto, BindingResult result) {
         if (result.hasErrors()) {
@@ -57,7 +57,7 @@ public class SetMealController {
         boolean save = setmealService.saveWithDish(setmealDto);
         return save ? Result.success("新增成功") : Result.error("新增失败");
     }
-
+    @Cacheable(value = "setmeal", key = "#page + '_' + #pageSize")
     @GetMapping("/page")
     public Result<Page<SetmealDto>> page(int page, int pageSize, String name) {
         //分页构造器
@@ -72,13 +72,7 @@ public class SetMealController {
         setmealDtoPage.setRecords(pageInfo.getRecords()
                                           .stream()
                                           .map(setmeal -> {
-                                              SetmealDto setmealDto = new SetmealDto();
-                                              BeanUtils.copyProperties(setmeal, setmealDto);
-                                              List<String> list = categoryService.getNameById(setmeal.getCategoryId());
-                                              if (list != null) {
-                                                  setmealDto.setCategoryName(list.get(0));
-                                              }
-                                              return setmealDto;
+                                              return setmealService.getByIdWithDishAndCategoryName(setmeal.getId());
                                           })
                                           .collect(Collectors.toList()));
         return Result.success(setmealDtoPage);
@@ -90,9 +84,10 @@ public class SetMealController {
      * @param ids id数组
      * @return
      */
+    @CacheEvict(value = "setmeal", allEntries = true)
     @DeleteMapping
     public Result<String> delete(@RequestParam List<Long> ids) {
-        boolean remove = setmealService.removeWithDish(ids,true);
+        boolean remove = setmealService.removeWithDish(ids, true);
         return remove ? Result.success("删除成功") : Result.error("删除失败");
     }
 
@@ -101,6 +96,7 @@ public class SetMealController {
      *
      * @return
      */
+    @CacheEvict(value = "setmeal",allEntries = true)
     @PostMapping("/status/{status}")
     public Result<String> status(@PathVariable("status") Integer status, @RequestParam Long[] ids) {
         //创建dish集合
@@ -120,9 +116,10 @@ public class SetMealController {
      * @param id
      * @return
      */
+    @Cacheable(value = "setmeal", key = "#id")
     @GetMapping("/{id}")
     public Result<SetmealDto> getById(@PathVariable("id") Long id) {
-        SetmealDto setmealDto = setmealService.getByIdWithDish(Optional.ofNullable(id).orElse(0L));
+        SetmealDto setmealDto = setmealService.getByIdWithDishAndCategoryName(Optional.ofNullable(id).orElse(0L));
         log.info(setmealDto.toString());
         return Result.success(setmealDto);
     }
@@ -132,6 +129,7 @@ public class SetMealController {
      *
      * @return
      */
+    @CacheEvict(value = "setmeal", allEntries = true)
     @PutMapping
     public Result<String> update(@Valid @RequestBody SetmealDto setmealDto, BindingResult result) {
         if (result.hasErrors()) {
@@ -140,5 +138,19 @@ public class SetMealController {
         }
         boolean save = setmealService.updateWithDish(setmealDto);
         return save ? Result.success("修改成功") : Result.error("修改失败");
+    }
+
+    @Cacheable(value = "setmeal" , key = "#setmeal.categoryId + '_' + #setmeal.status")
+    @GetMapping("/list")
+    public Result<List<SetmealDto>> listResult(Setmeal setmeal) {
+        LambdaQueryWrapper<Setmeal> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(setmeal.getName() != null, Setmeal::getName, setmeal.getName())
+                .eq(setmeal.getCategoryId() != null, Setmeal::getCategoryId, setmeal.getCategoryId())
+                .eq(Setmeal::getStatus, 1)
+                .orderByAsc(Setmeal::getUpdateTime);
+        return Result.success(setmealService.list(wrapper)
+                                      .stream()
+                                      .map(item -> setmealService.getByIdWithDishAndCategoryName(item.getId()))
+                                      .collect(Collectors.toList()));
     }
 }

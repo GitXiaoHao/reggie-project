@@ -10,6 +10,52 @@ spring:
       url: jdbc:mysql://127.0.0.1:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
       username: root #你自己的数据库用户名，默认root
       password: yu123456 #你自己数据库的连接密码
+      # redis相关配置
+#  shardingsphere:
+#    datasource:
+#      names:
+#        master,slave
+#      # 主数据源
+#      master:
+#        #        type: com.alibaba.druid.pool.DruidDataSource
+#        driver-class-name: com.mysql.cj.jdbc.Driver
+#        url: jdbc:mysql://127.0.0.1:3306/reggie?characterEncoding=utf-8
+#        username: root
+#        password: 123456
+#      # 从数据源
+#      slave:
+#        #        type: com.alibaba.druid.pool.DruidDataSource
+#        driver-class-name: com.mysql.cj.jdbc.Driver
+#        url: jdbc:mysql://127.0.0.1:3306/reggie?characterEncoding=utf-8
+#        username: root
+#        password: root
+#    masterslave:
+#      # 读写分离配置
+#      load-balance-algorithm-type: round_robin #轮询
+#      # 最终的数据源名称
+#      name: dataSource
+#      # 主库数据源名称
+#      master-data-source-name: master
+#      # 从库数据源名称列表，多个逗号分隔
+#      slave-data-source-names: slave
+#    props:
+#      sql:
+#        show: true #开启SQL显示，默认false
+#  main:
+#    allow-bean-definition-overriding: true      #bean覆盖连接池覆盖
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 0
+    jedis:
+      pool:
+        max-active: 8 # 最大连接数
+        max-wait: 1ms # 连接池最大阻塞等待时间
+        max-idle: 4 # 连接池中最大空闲链接
+        min-idle: 0 # 连接池中最小空间连接
+  cache:
+    redis:
+      time-to-live: 180000
 mybatis-plus:
   configuration:
     #在映射实体或者属性时，将数据库中表名和字段名中的下划线去掉，按照驼峰命名法映射
@@ -20,3 +66,4 @@ mybatis-plus:
       id-type: ASSIGN_ID #主键生成策略
 reggie:
   path: E:\HaoCode\SSM\reggie\reggie-project\src\main\resources\backend\images\food\
+

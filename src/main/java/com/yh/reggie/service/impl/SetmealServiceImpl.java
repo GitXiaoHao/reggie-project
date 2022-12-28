@@ -7,6 +7,7 @@ import com.yh.reggie.mapper.SetmealMapper;
 import com.yh.reggie.pojo.Setmeal;
 import com.yh.reggie.pojo.SetmealDish;
 import com.yh.reggie.pojo.dto.SetmealDto;
+import com.yh.reggie.service.CategoryService;
 import com.yh.reggie.service.SetmealDishService;
 import com.yh.reggie.service.SetmealService;
 
@@ -28,7 +29,8 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal>
         implements SetmealService {
     @Autowired
     private SetmealDishService setmealDishService;
-
+    @Autowired
+    private CategoryService categoryService;
     @Override
     public boolean saveWithDish(SetmealDto setmealDto) {
         //保存套餐的基本信息
@@ -70,7 +72,7 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal>
     }
 
     @Override
-    public SetmealDto getByIdWithDish(Long id) {
+    public SetmealDto getByIdWithDishAndCategoryName(Long id) {
         Setmeal setmeal = this.getById(id);
         SetmealDto setmealDto = new SetmealDto();
         BeanUtils.copyProperties(setmeal,setmealDto);
@@ -80,6 +82,9 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal>
                         .eq(SetmealDish::getSetmealId,setmeal.getId())
                                        )
                                    );
+        setmealDto.setCategoryName(
+                categoryService.getNameById(setmealDto.getCategoryId())
+                                  );
         return setmealDto;
     }
 }
