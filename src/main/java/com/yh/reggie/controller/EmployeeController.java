@@ -67,6 +67,8 @@ public class EmployeeController {
         String password = DigestUtils.md5DigestAsHex(employee.getPassword().getBytes());
         //如果没有查询到则返回登陆失败结果
         //密码比对，如果不一致则返回登陆失败结果
+        //request.getSession().setAttribute(userInfo, employeeServiceOne.getId());
+        //return Result.success(employeeServiceOne);
         if (employeeServiceOne == null || !employeeServiceOne.getPassword().equals(password)) {
             return Result.error("密码或用户名错误");
         }

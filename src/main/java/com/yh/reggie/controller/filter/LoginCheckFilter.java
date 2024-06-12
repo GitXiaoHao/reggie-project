@@ -47,7 +47,11 @@ public class LoginCheckFilter implements Filter {
                 //移动端发送短信
                 "/user/sendMsg",
                 // 移动端登陆
-                "/user/login"
+                "/user/login",
+                "/doc.html",
+                "/webjars/**",
+                "/swagger-resources",
+                "/v2/api-docs"
         };
         //判断本次请求是否需要处理
         if (!check(uris, uri)) {
